@@ -6,6 +6,9 @@
 <title>حياتي — منظّم يومي</title>
 <meta name="theme-color" content="#2BA89A">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="حياتي">
+<link rel="apple-touch-icon" href="icon-180.png">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%232BA89A'/><text x='50' y='68' font-size='54' text-anchor='middle' fill='white' font-family='Arial'>ح</text></svg>">
@@ -300,6 +303,21 @@ canvas#conf{position:fixed;inset:0;pointer-events:none;z-index:299}
 .auth .box{background:#fff;border-radius:26px;padding:34px 30px;width:min(420px,94vw);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.12)}
 .auth .logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--p),var(--p2));display:grid;place-items:center;color:#fff;font-weight:800;font-size:32px;margin:0 auto 12px}
 .auth h2{font-size:22px;margin-bottom:6px}
+
+/* iPhone / installed app polish */
+html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+.top{padding-top:env(safe-area-inset-top)}
+@media(max-width:760px){
+ .side{padding-bottom:calc(6px + env(safe-area-inset-bottom))}
+ .fab{bottom:calc(84px + env(safe-area-inset-bottom))}
+ .main{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+ input[type=text],input[type=password],input[type=email],input[type=number],input[type=search],input[type=date],input[type=time],select,textarea{font-size:16px}
+ .alarm .box,.auth .box{margin-bottom:env(safe-area-inset-bottom)}
+}
+@media(display-mode:standalone){body{user-select:none;-webkit-user-select:none}input,textarea,[contenteditable]{user-select:text;-webkit-user-select:text}}
+
+body.mini .app{filter:blur(2px);opacity:.4}
+body.mini .modal{background:rgba(245,248,244,.6)}
 </style>
 </head>
 <body>
@@ -320,6 +338,7 @@ canvas#conf{position:fixed;inset:0;pointer-events:none;z-index:299}
       <div class="pill" title="أيام متتالية"><span>🔥</span><span id="streakN">0</span> يوم <span class="muted" id="freezeN" style="font-weight:500"></span></div>
       <button class="pill lvl" onclick="go('dash')"><span id="lvlName">مستوى 1</span><div class="bar"><i id="lvlBar" style="width:0"></i></div><span class="muted" id="xpN" style="font-weight:500;font-size:12px"></span></button>
     </div>
+    <div class="banner hide" id="iosHint"></div>
     <div class="banner hide" id="banner"></div>
     <section id="v-today"></section><section id="v-dash" class="hide"></section><section id="v-sec" class="hide"></section>
     <section id="v-tasks" class="hide"></section><section id="v-notes" class="hide"></section><section id="v-rem" class="hide"></section><section id="v-people" class="hide"></section>
@@ -728,9 +747,11 @@ function sfx(k){if(k==='win')[660,880,990].forEach((f,i)=>tone(f,i*.12,.35,'sine
 
 /* notifications */
 async function askNotify(){if(!('Notification'in window)){toast('المتصفح ده مبيدعمش الإشعارات');return}ac();const p=await Notification.requestPermission();renderBanner();toast(p==='granted'?'✅ التنبيهات اشتغلت':'❌ التنبيهات اترفضت — فعّلها من إعدادات المتصفح')}
-function notify(title,body,tag){try{if(!('Notification'in window)||Notification.permission!=='granted')return;
-  if(navigator.serviceWorker&&navigator.serviceWorker.controller){navigator.serviceWorker.ready.then(r=>r.showNotification(title,{body,tag,requireInteraction:true,vibrate:[300,100,300,100,300],icon:'icon.svg'}))}
-  else{const n=new Notification(title,{body,tag,requireInteraction:true});n.onclick=()=>{window.focus();n.close()}}
+function notify(title,body,tag,actions=true){try{if(!('Notification'in window)||Notification.permission!=='granted')return;
+  const opt={body,tag:tag||uid('n'),requireInteraction:true,renotify:true,silent:false,vibrate:[300,100,300,100,300],icon:'icon-192.png',badge:'icon-192.png',dir:'rtl',lang:'ar',
+    actions:actions?[{action:'done',title:'✓ تمام'},{action:'snooze',title:'😴 غفوة 10 د'}]:[]};
+  const fallback=()=>{const n=new Notification(title,{body,tag:opt.tag,requireInteraction:true,dir:'rtl'});n.onclick=()=>{window.focus();n.close()}};
+  if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.getRegistration().then(r=>r?r.showNotification(title,opt):fallback()).catch(fallback);else fallback();
   if(navigator.vibrate)navigator.vibrate([400,150,400,150,400])}catch(e){}}
 
 /* ================== ALARM OVERLAY ================== */
@@ -747,7 +768,7 @@ function nextAlarm(){
   stop();const snd=a.sound||S.settings.sound;playSound(snd);let n=0;alarmLoop=setInterval(()=>{n++;if(n>40){stop();return}playSound(snd)},a.loud===false?6000:2200);
   if(a.loud===false){setTimeout(stop,100)}
   clearInterval(titleBlink);let on=0;titleBlink=setInterval(()=>{document.title=(on^=1)?'⏰ '+a.t:baseTitle},900);
-  notify('⏰ '+a.t,a.body||a.sub||'',a.id);
+  a.tag=a.id||uid('al');notify('⏰ '+a.t,a.body||a.sub||'',a.tag,a.snooze!==false);
   $('#alOk').onclick=()=>{stop();a.onOk&&a.onOk();nextAlarm()};
   $$('#alarmBox [data-sn]').forEach(b=>b.onclick=()=>{stop();a.onSnooze&&a.onSnooze(+b.dataset.sn);toast('😴 هفكرك بعد '+b.textContent);nextAlarm()});
   const g=$('#alGo');if(g)g.onclick=()=>{stop();a.onOk&&a.onOk();nextAlarm();go(a.go)};
@@ -944,7 +965,7 @@ function palKey(e){if(e.key==='Escape')return closePalette();if(e.key==='ArrowDo
 /* ================== QUICK CAPTURE (shortcut N / + button / #quick) ================== */
 let qcMode='note',rec=null;
 function quickCapture(mode){qcMode=mode||'note';
-  modal(`<div class="qc"><h3>⚡ اكتب بسرعة <span class="r"><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> للحفظ</span></h3>
+  modal(`<div class="qc"><h3>⚡ اكتب بسرعة <span class="r"><span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> حفظ · <span class="kbd">Ctrl</span>+<span class="kbd">1/2/3</span> نوع</span></h3>
    <div class="modes"><button data-m="note">🗒️ ملاحظة</button><button data-m="task">✅ مهمة</button><button data-m="rem">⏰ تذكير</button></div>
    <textarea id="qcT" rows="4" placeholder="اكتب أي حاجة… مثال: كلّم أحمد بكرة الساعة 3 عن الكوميشن #إيجنت"></textarea>
    <div id="qcParse" class="parse hide"></div>
@@ -961,7 +982,7 @@ function quickCapture(mode){qcMode=mode||'note';
       if(qcMode==='note'){addNote(v);toast('🗒️ اتحفظت')}
       else if(qcMode==='task'){const t={id:uid('t'),t:p?p.clean||v:v,cat:$('#qcCat').value,prio:$('#qcPrio').value,due:p?dkey(p.at):today(),time:p&&!/^(10:00)$/.test(hm(p.at))?hm(p.at):'',est:30,status:'todo',sub:[],created:Date.now()};S.tasks.push(t);save();toast('✅ مهمة اتضافت'+(p?' — '+p.label:''))}
       else{if(!p){toast('⏰ قولي إمتى؟ مثال: «بعد ساعة» أو «بكرة 9»');return}addReminder(p.clean||v,p.at,{cat:$('#qcCat').value});toast('⏰ هفكرك '+p.label)}
-      touch();closeModal();refresh()};
+      touch();closeModal();refresh();if(document.body.classList.contains('mini')){toast('✓ اتحفظ');setTimeout(()=>{try{window.close()}catch(e){}},900)}};
   })}
 function dictate(el,after){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast('المتصفح ده مبيدعمش الكتابة بالصوت — جرب كروم');return}
   if(rec){rec.stop();rec=null;return}rec=new SR();rec.lang='ar-EG';rec.interimResults=false;rec.continuous=false;
@@ -969,6 +990,10 @@ function dictate(el,after){const SR=window.SpeechRecognition||window.webkitSpeec
 
 /* ================== DATA EXPORT ================== */
 function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download=`hayati-backup-${today()}.json`;a.click();S.lastBackup=Date.now();save();toast('💾 اتنزلت نسخة احتياطية')}
+
+/* actions pressed on a system notification (laptop/phone) */
+if('serviceWorker'in navigator)navigator.serviceWorker.addEventListener('message',e=>{const m=e.data||{};if(m.type!=='notif')return;
+  const btn=m.action==='snooze'?$('#alarmBox [data-sn="10"]'):$('#alOk');if(alarmCur&&alarmCur.tag===m.tag&&btn)btn.click();else if(alarmCur&&btn&&!m.tag)btn.click();window.focus()});
 
 /* ================== CLOUD: login + sync (Firebase) ==================
    حط إعدادات Firebase هنا مرة واحدة. لو null الموقع بيشتغل محلي بس. */
@@ -1881,7 +1906,12 @@ R.settings=()=>{const st=S.settings;
    <div class="card formg"><h3>💾 بياناتك</h3><p class="muted small" style="line-height:1.8">كل بياناتك محفوظة على الجهاز ده (${Math.round(JSON.stringify(S).length/1024)} KB). نزّل نسخة كل أسبوع.</p>
     <div class="row wrap"><button class="btn sm" onclick="exportData()">⬇ تنزيل نسخة</button><label class="btn ghost sm" style="cursor:pointer">⬆ رفع نسخة<input type="file" id="imp" accept=".json" hidden></label><button class="btn ghost sm" onclick="icsExport()">📅 تصدير للكالندر</button></div>
     <hr><button class="btn ghost sm" id="wipe" style="justify-self:start;color:var(--rose)">مسح كل البيانات</button></div>
-   <div class="card"><h3>⌨️ الاختصارات</h3><div class="small" style="line-height:2.2"><span class="kbd">N</span> ملاحظة سريعة · <span class="kbd">T</span> مهمة · <span class="kbd">R</span> تذكير · <span class="kbd">F</span> تركيز<br><span class="kbd">Ctrl</span>+<span class="kbd">K</span> بحث وأوامر · <span class="kbd">1</span>–<span class="kbd">9</span> تنقّل بين الصفحات · <span class="kbd">Esc</span> قفل<br>📱 على الموبايل: زرار ＋ تحت، أو احفظ الرابط ده على الشاشة الرئيسية: <code style="direction:ltr">…/index.html#quick</code> بيفتح الكتابة على طول.</div></div>
+   <div class="card"><h3>⌨️ الاختصارات</h3><div class="small" style="line-height:2.3">
+ <span class="kbd">Ctrl</span>+<span class="kbd">Q</span> كتابة سريعة (ملاحظة/مهمة/تذكير) — <b>تشتغل من أي برنامج</b> لو ركّبت ملف الاختصارات<br>
+ <span class="kbd">Ctrl</span>+<span class="kbd">Shift</span>+<span class="kbd">Q</span> مهمة جديدة · <span class="kbd">Ctrl</span>+<span class="kbd">Alt</span>+<span class="kbd">R</span> تذكير جديد<br>
+ <span class="kbd">Ctrl</span>+<span class="kbd">K</span> بحث وأوامر في كل حاجة · <span class="kbd">Ctrl</span>+<span class="kbd">Enter</span> حفظ<br>
+ <span class="kbd">N</span> ملاحظة · <span class="kbd">T</span> مهمة · <span class="kbd">R</span> تذكير · <span class="kbd">F</span> تركيز · <span class="kbd">Alt</span>+<span class="kbd">1</span>–<span class="kbd">9</span> الصفحات · <span class="kbd">Esc</span> قفل<br>
+ 📱 الموبايل: زرار ＋ تحت، أو «دق مرتين على ضهر الآيفون» (Back Tap) — الخطوات في الشات</div></div></div>
   </div></div>`;
   const bind=(id,fn)=>{$(id).onchange=fn};
   const sv=()=>{const ch=S.city!==$('#sCity').value.trim()||+S.method!==+$('#sMethod').value;
@@ -1901,9 +1931,10 @@ R.settings=()=>{const st=S.settings;
 function boot(){
   load();applyTheme();buildNav();
   document.body.addEventListener('click',()=>{if(!audioOk){audioOk=true;ac()}},{once:true});
-  renderTop();renderDate();renderBanner();
+  renderTop();renderDate();renderBanner();renderIosHint();
   const h=location.hash.slice(1);go(h&&R[h]?h:'today');
   if(h==='quick'){go('today');setTimeout(()=>quickCapture('note'),300)}
+  if(/[?&]mini=1/.test(location.search))document.body.classList.add('mini');
   loadPrayers();renderCounts();$('#sideQuote').textContent=pick(QUOTES);
   checkReminders(true);cloudInit();
   setInterval(()=>{checkReminders(false);renderCounts()},10000);
@@ -1918,6 +1949,12 @@ let curDay=today();
 document.addEventListener('keydown',e=>{
   const tag=(e.target.tagName||'').toLowerCase(),typing=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette();return}
+  const K=e.key.toLowerCase(),C=e.ctrlKey||e.metaKey;
+  if(C&&!e.shiftKey&&(K==='q'||K==='ض')){e.preventDefault();quickCapture('note');return}
+  if(C&&e.shiftKey&&(K==='q'||K==='ض')){e.preventDefault();quickCapture('task');return}
+  if(C&&e.altKey&&(K==='r'||K==='ق')){e.preventDefault();quickCapture('rem');return}
+  if(e.altKey&&!C&&/^[1-9]$/.test(K)){e.preventDefault();const vs=VIEWS.filter(v=>v[0]!=='g');if(vs[+K-1])go(vs[+K-1][0]);return}
+  if(!$('#modal').classList.contains('hide')&&$('.qc')&&C&&/^[123]$/.test(K)){e.preventDefault();const b=$$('.qc .modes button')[+K-1];b&&b.click();return}
   if(e.key==='Escape'){if(!$('#pal').classList.contains('hide'))closePalette();else if(!$('#modal').classList.contains('hide'))closeModal();return}
   if(typing||e.ctrlKey||e.metaKey||e.altKey||!$('#modal').classList.contains('hide')||!$('#pal').classList.contains('hide')||!$('#alarm').classList.contains('hide'))return;
   const k=e.key.toLowerCase();const map={n:'note','ى':'note',t:'task','ف':'task',r:'rem','ق':'rem'};
@@ -1938,6 +1975,12 @@ function renderAcct(){const el=$('#acct');if(!el)return;
   $('#acOut').onclick=()=>confirmBox('تخرج من الجهاز ده؟ بياناتك هتفضل محفوظة على حسابك وهتتمسح من الجهاز ده بس.',cloudLogout);
   cloudBackups().then(ks=>{$('#acBk').innerHTML=ks.length?ks.slice(0,14).map(k=>`<div class="row" style="padding:4px 0"><span class="f1">${fmtDay(k)} (${k})</span><button class="btn ghost xs" data-bk="${k}">رجّع النسخة دي</button></div>`).join(''):'لسه مفيش';
     $$('[data-bk]').forEach(b=>b.onclick=()=>confirmBox('ترجّع نسخة '+b.dataset.bk+'؟ البيانات الحالية هتتبدل بيها.',()=>cloudRestore(b.dataset.bk)))}).catch(()=>{$('#acBk').textContent='مقدرتش أجيبها دلوقتي'})}
+
+const isIOS=()=>/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+function renderIosHint(){const el=$('#iosHint');if(!el)return;if(!isIOS()||isStandalone()||localStorage.getItem('hayati_ioshint')==='x'){el.classList.add('hide');return}
+  el.classList.remove('hide');el.innerHTML=`<span style="font-size:24px">📲</span><div class="f1 small" style="line-height:1.8"><b>نزّله كتطبيق على الآيفون:</b> افتح الرابط ده في <b>Safari</b> ← دوس زرار المشاركة <b>⬆️</b> تحت ← <b>Add to Home Screen</b> ← <b>Add</b>. وبعدها افتحه من الأيقونة.</div><button class="x" id="iosX">✕</button>`;
+  $('#iosX').onclick=()=>{localStorage.setItem('hayati_ioshint','x');el.classList.add('hide')}}
 
 boot();
 </script>
