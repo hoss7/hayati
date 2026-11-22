@@ -318,6 +318,7 @@ html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
 
 body.mini .app{filter:blur(2px);opacity:.4}
 body.mini .modal{background:rgba(245,248,244,.6)}
+.shop .it span.chip{font-size:12px}
 </style>
 </head>
 <body>
@@ -583,6 +584,222 @@ const LEVELS2=['مبتدئ','بيبدأ يتحرك','مثابر','منضبط','�
 const SOUNDS={
  alarm:'🚨 إنذار عالي',bell:'🔔 جرس',chime:'🎵 نغمة صاعدة',digital:'⏰ منبه ديجيتال',gentle:'🌿 هادي',
 };
+
+/* ================== 200 REALISTIC REWARDS ================== */
+const RW_CATS={food:['🍽️','أكل وشرب'],fun:['🎬','ترفيه'],rest:['😌','راحة'],out:['🚶','خروجات'],shop:['🛍️','تسوق'],grow:['📚','تطوير'],care:['💆','عناية بنفسك'],soul:['🤲','عيلة وروح'],big:['🏆','أحلام كبيرة']};
+const RW_RAW=`
+☕|قهوة تركي في قهوة بتحبها|80|food
+🥯|سميط وشاي على البحر|60|food
+🍫|شوكولاتة بتحبها من غير ذنب|50|food
+🍦|آيس كريم ماراش|70|food
+🧁|حلويات من محل حلو|90|food
+🍰|تشيز كيك في كافيه شيك|150|food
+🧇|وافل بالنوتيلا|120|food
+🍩|دونات وقهوة|90|food
+🥤|عصير فريش كبير|60|food
+🍵|شاي في كوباية زجاج على البوسفور|70|food
+🍮|كنافة أو كونيفة|130|food
+🥙|دونر من أحسن محل|110|food
+🍔|برجر من مطعمك المفضل|200|food
+🍕|بيتزا كبيرة|220|food
+🌯|شاورما سوري معتبرة|120|food
+🥩|ستيك محترم|450|food
+🐟|سمك مشوي على البحر|400|food
+🍝|أكلة إيطالي|300|food
+🍣|سوشي|380|food
+🥘|أكلة مصري زي البيت (كشري/محشي)|180|food
+🍳|فطار تركي كامل (كهفالتي)|250|food
+🍗|فراخ مشوية عائلي|200|food
+🥗|ساندوتش وسلطة من مكان صحي|120|food
+🍫|علبة شوكولاتة فاخرة|200|food
+☕|مشروب جديد في ستاربكس|130|food
+🍿|فشار وكولا مع فيلم|70|food
+🥜|مكسرات محمصة فريش|90|food
+🍉|بطيخة أو فاكهة غالية بتحبها|80|food
+🍯|عسل وقشطة على الفطار|100|food
+🧆|طعمية وفول زي مصر|90|food
+🍜|شوربة عدس سخنة في مطعم|70|food
+🥐|كرواسون من مخبز فرنساوي|80|food
+🍽️|عزومة لنفسك في مطعم جديد|500|food
+🧉|سحلب سخن في الشتا|70|food
+🍪|كوكيز من مخبز حلو|70|food
+📺|حلقة من مسلسل بتحبه|100|fun
+🎬|فيلم كامل من غير ذنب|180|fun
+🎥|فيلم في السينما|300|fun
+🎮|ساعة بلايستيشن|150|fun
+🕹️|لعبة جديدة على الموبايل|200|fun
+🎮|لعبة جديدة على البلايستيشن|1200|fun
+📱|نص ساعة سوشيال ميديا من غير ذنب|60|fun
+▶️|ساعة يوتيوب على مزاجك|100|fun
+⚽|ماتش كامل من غير شغل|180|fun
+🏟️|تذكرة ماتش في الاستاد|900|fun
+🎳|بولينج مع الصحاب|400|fun
+🎯|بلياردو أو سنوكر|250|fun
+🧩|بازل أو لعبة ذكاء جديدة|200|fun
+🎧|اشتراك سبوتيفاي/يوتيوب بريميوم شهر|300|fun
+📽️|اشتراك نتفليكس شهر|350|fun
+🎤|سهرة كاريوكي/قعدة مزيكا|300|fun
+🃏|قعدة كوتشينة/دومينو مع الصحاب|120|fun
+🏎️|كارتينج|700|fun
+🎢|يوم في الملاهي|900|fun
+🎟️|حفلة أو عرض|1000|fun
+🐠|زيارة أكواريوم إسطنبول|600|fun
+🎨|ورشة رسم أو فخار|700|fun
+🛋️|قعدة كسل كاملة على الكنبة|120|rest
+😴|نومة الضهر ساعة|100|rest
+🛌|تصحى من غير منبه يوم الإجازة|200|rest
+📵|ساعة من غير موبايل في هدوء|80|rest
+🛀|حمام سخن طويل|60|rest
+🌙|ليلة من غير أي شغل|250|rest
+☀️|قعدة في الشمس 30 دقيقة|50|rest
+🧘|يوم «مفيش أي التزامات»|600|rest
+🎶|نص ساعة مزيكا/قرآن بصوت حلو وإنت مسترخي|60|rest
+📖|ساعة قراية لكتاب ممتع مش تعليمي|100|rest
+🪑|قعدة على البلكونة مع مشروب|60|rest
+⏰|تأجيل مهمة مش عاجلة لبكرة من غير ذنب|80|rest
+🚶|تمشية على البوسفور|80|out
+⛴️|رحلة عبّارة بين أوروبا وآسيا|90|out
+🏝️|يوم في جزر الأميرات|600|out
+🌉|قعدة في أورتاكوي وقت الغروب|200|out
+🗼|طلعة برج جالاطا|350|out
+🕌|زيارة مسجد تاريخي وتصوير|100|out
+🌳|تمشية في بلغراد فورست|200|out
+🏞️|رحلة يوم لسبانجا أو بورصة|1200|out
+🛥️|رحلة مركب في البوسفور|500|out
+🛍️|لفة في جراند بازار|200|out
+☕|كافيه جديد في كاديكوي|150|out
+🏛️|متحف (آيا صوفيا/توب كابي)|400|out
+🏔️|يوم في أولوداغ|1800|out
+🚴|تأجير عجلة ساعتين|200|out
+🎣|صيد على كوبري جالاطا|150|out
+🏖️|يوم بحر في شيلي أو كيليوس|700|out
+🚗|مشوار بالعربية من غير هدف|200|out
+🧺|بيكنيك مع العيلة|300|out
+🌆|سهرة مع صحابك برا|400|out
+✈️|ويك إند في مدينة تركية جديدة|3500|out
+👕|تيشيرت جديد|350|shop
+👖|بنطلون جديد|500|shop
+👟|كوتشي جديد|1500|shop
+🧥|جاكيت شتوي|1800|shop
+🧢|كاب أو حاجة صغيرة لبس|200|shop
+⌚|ساعة يد حلوة|2500|shop
+🕶️|نضارة شمس|800|shop
+🎒|شنطة ضهر/لابتوب جديدة|900|shop
+👔|قميص رسمي للشغل|500|shop
+🧦|طقم شرابات حلوين|100|shop
+🌸|برفان جديد|1500|shop
+🎧|سماعات بلوتوث|1500|shop
+🔋|باور بانك|400|shop
+⌨️|كيبورد أو ماوس مريح|700|shop
+🖥️|شاشة تانية للمكتب|3000|shop
+💡|إضاءة حلوة للمكتب|400|shop
+🪴|نبات للمكتب أو البيت|200|shop
+🖊️|قلم فاخر ونوتة جلد|300|shop
+🧸|حاجة صغيرة نفسك فيها من زمان|400|shop
+📱|جراب أو اكسسوار للموبايل|200|shop
+🛒|حاجة من «نفسي فيها» تحت 500|500|shop
+🎁|هدية لنفسك بمناسبة إنجاز|700|shop
+📗|كتاب جديد من اختيارك|400|grow
+📚|3 كتب مرة واحدة|1000|grow
+🎧|كتاب صوتي|300|grow
+🎓|كورس أونلاين (Udemy)|600|grow
+🧠|كورس قيادة/إدارة|1500|grow
+🇹🇷|كورس تركي|1500|grow
+🇬🇧|كورس إنجليزي/IELTS|1800|grow
+📒|أجندة/بلانر جديد|300|grow
+🖋️|ورشة أو ندوة|500|grow
+🎙️|اشتراك بودكاست/منصة تعليمية شهر|300|grow
+💻|برنامج أو أداة تسهّل شغلك|800|grow
+📖|نسخة فاخرة من كتاب بتحبه|600|grow
+🧾|كتاب ديني مجلد/مصحف تجويد|500|grow
+💈|حلاقة وتظبيط في حلاق شيك|250|care
+💆|مساج|900|care
+🛁|حمام تركي (حمّام)|800|care
+🧴|منتجات عناية (شاور/برفان صغير)|300|care
+🏊|يوم سباحة|350|care
+🏋️|اشتراك جيم شهر|1200|care
+🧖|ساونا وجاكوزي|600|care
+👞|تلميع جزمة وتنظيف لبس|100|care
+🦷|كشف أسنان وتنضيف (استثمار في نفسك)|900|care
+👓|نضارة نظر جديدة|1500|care
+🥤|بروتين أو مكملات|500|care
+🛏️|مخدة طبية مريحة|500|care
+🧺|خدمة غسيل وكي لهدومك|200|care
+🕯️|معطّر/شمعة ريحتها حلوة|150|care
+👨‍👩‍👦|عزومة العيلة على أكلة|600|soul
+💐|ورد لحد بتحبه|250|soul
+🎁|هدية مفاجأة لحد من أهلك|500|soul
+📞|مكالمة فيديو طويلة مع أهلك في مصر|50|soul
+🤲|صدقة باسمك (كافئ نفسك بالعطاء)|200|soul
+🕋|اشتراك في كفالة يتيم شهر|800|soul
+🧕|هدية لوالدتك|700|soul
+👴|هدية لوالدك|700|soul
+🍰|تورتة لعيلتك من غير مناسبة|300|soul
+🤝|عزومة صاحب قديم على قهوة|200|soul
+👶|لعبة لطفل من العيلة|300|soul
+📿|سبحة أو سجادة صلاة شيك|250|soul
+🕌|اعتكاف ليلة/يوم في مسجد|100|soul
+📖|مصحف جديد بخط حلو|300|soul
+🧳|تحويل فلوس زيادة لأهلك|1500|soul
+🍽️|إفطار صايم أو سفرة خير|500|soul
+✉️|رسالة بخط إيدك لحد غالي|80|soul
+🎉|حفلة صغيرة لإنجاز كبير|1500|big
+✈️|تذكرة زيارة لمصر|6000|big
+🕋|ادخار لعمرة|10000|big
+🏖️|أسبوع إجازة على البحر (أنطاليا/بودروم)|8000|big
+🎈|رحلة بالون في كابادوكيا|5000|big
+📱|موبايل جديد|9000|big
+💻|لابتوب جديد|12000|big
+⌚|ساعة ذكية|4000|big
+🎧|سماعات عازلة للصوت|3500|big
+🚲|عجلة جديدة|4000|big
+🛋️|كرسي مكتب مريح|3500|big
+🎮|بلايستيشن|9000|big
+📷|كاميرا|8000|big
+🏠|حاجة كبيرة للبيت نفسك فيها|5000|big
+🧳|شنطة سفر محترمة|2500|big
+🌍|رحلة لبلد جديدة|15000|big
+🏅|يوم كامل «يوم عمور» — كل اللي نفسك فيه|3000|big
+💰|حط 500 ليرة في حصّالة الأحلام|2000|big
+🎓|شهادة احترافية في مجالك|7000|big
+🚗|يوم تأجير عربية حلوة|2500|big
+🍽️|عشا في مطعم فاخر مطل على البوسفور|2500|big
+🛍️|ميزانية تسوق مفتوحة 2000 ليرة|6000|big
+☕|ماكينة قهوة للبيت|3500|big
+🖼️|لوحة أو ديكور مميز للبيت|1500|big
+🎤|حضور مؤتمر في مجالك|4000|big
+🍵|علبة شاي/قهوة فاخرة للبيت|300|food
+🥧|بوريك سخن الصبح|60|food
+🍡|لوكوم (راحة الحلقوم) فاخر|150|food
+🌰|كستنا مشوية من على الكورنيش|50|food
+🥛|عيران وكباب أضنة|200|food
+🧃|يوم «أكل اللي نفسك فيه» مرة|400|food
+🎬|ماراثون مسلسل نص يوم|500|fun
+📚|ساعة في مكتبة كبيرة تقلّب في الكتب|80|grow
+🖌️|تجربة هواية جديدة|500|grow
+🎯|يوم مخصص لمشروع جانبي بتحبه|600|grow
+🐈|قعدة مع قطط إسطنبول وأكل ليهم|50|rest
+🌅|صلاة الفجر وبعدها تمشية الشروق|80|soul
+🚿|ترتيب أوضتك وتعطيرها (بيئة جديدة)|100|rest
+🎁|صندوق مفاجآت: اختار أي جايزة تحت 300|300|shop
+🍋|ليموناضة بالنعناع في جو حر|60|food
+🥞|بان كيك بالعسل|110|food
+🎼|تتعلم مقطوعة/أغنية على آلة|300|grow
+📸|جلسة تصوير لنفسك في مكان حلو|400|out
+🧗|تسلق حوائط (Climbing)|600|fun
+🛶|كاياك أو تجديف|700|out
+🚤|جيت سكي|1200|fun
+🎂|احتفال بنفسك على إنجاز الشهر|800|big
+`;
+const REWARDS_POOL=RW_RAW.trim().split('\n').map((l,i)=>{const[e,n,c,cat]=l.split('|');return{id:'p'+i,e,n,cost:+c,cat}});
+const RW_TIER=c=>c<=150?['صغيرة','var(--green)']:c<=600?['متوسطة','var(--sky)']:c<=2000?['كبيرة','var(--lav)']:['حلم','var(--coral)'];
+function dailyDeals(){const r=rng(today()+'rw');const pickT=(lo,hi,n)=>{const p=REWARDS_POOL.filter(x=>x.cost>=lo&&x.cost<=hi).slice();const o=[];while(o.length<n&&p.length)o.push(p.splice(Math.floor(r()*p.length),1)[0]);return o};
+  return[...pickT(0,150,3),...pickT(151,600,3),...pickT(601,2000,2),...pickT(2001,99999,1)]}
+/* random surprise reward after achievements */
+function maybeSurprise(chance=0.06,maxCost=200){if(Math.random()>chance)return;const d=day();if((d.surprises||0)>=2)return;d.surprises=(d.surprises||0)+1;
+  const pool=REWARDS_POOL.filter(x=>x.cost<=maxCost);const r=pick(pool);
+  S.redeemed.unshift({e:r.e,n:r.n,cost:0,d:Date.now(),free:true});save();
+  setTimeout(()=>{modal(`<div style="text-align:center"><div style="font-size:70px">🎁</div><h3 style="justify-content:center">جايزة مفاجأة!</h3><p class="muted">إنت شغال كويس، فالسكرتير قرر يكافئك ببلاش:</p><div style="font-size:44px;margin:10px 0">${r.e}</div><h2 style="margin-bottom:14px">${esc(r.n)}</h2><p class="small muted">مستاهلها — استمتع بيها النهارده من غير ذنب 😉</p><button class="btn big" onclick="closeModal()">الحمد لله 🎉</button></div>`);confetti(250);sfx('levelup')},1200)}
 
 /* ================== CORE ================== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -1166,7 +1383,7 @@ function renderMissions(){const d=day();if(!d.missions){d.missions=genMissions(t
 function toggleMission(id){const d=day(),m=findM(id);
   if(d.done.includes(id)){d.done=d.done.filter(x=>x!==id);S.stats.missions--;subXP(m.xp,m.cat);renderMissions();return}
   d.done.push(id);S.stats.missions++;sfx('done');addXP(m.xp,m.cat,pick(['💪 عاش!','🔥 كمّل كده','👏 برافو','✨ خطوة كمان','🚀 إنت جامد','🌟 ما شاء الله']));
-  if(d.done.length===d.missions.length){confetti(250);setTimeout(()=>lootBox(),900)}renderMissions()}
+  if(d.done.length===d.missions.length){confetti(250);setTimeout(()=>lootBox(),900)}else maybeSurprise(.04,120);renderMissions()}
 function swapMission(id){const d=day(),m=findM(id);let opts=allMissions().filter(x=>x.cat===m.cat&&!x.once&&!d.missions.includes(x.id));if(!opts.length)opts=allMissions().filter(x=>!x.once&&!d.missions.includes(x.id));
   d.missions[d.missions.indexOf(id)]=pick(opts).id;save();renderMissions();sfx('tick')}
 function addMissionModal(){modal(`<h3>＋ مهمة من دماغك</h3><div class="formg"><label>المهمة</label><input type="text" id="mT" placeholder="مثال: أراجع عقد جامعة X">
@@ -1175,7 +1392,7 @@ function addMissionModal(){modal(`<h3>＋ مهمة من دماغك</h3><div clas
  <label class="row"><input type="checkbox" id="mKeep"> ضيفها لمكتبة المهام اليومية (ممكن تطلعلي في أيام تانية)</label>
  <div class="row"><button class="btn" id="mOk">إضافة</button><button class="btn ghost" onclick="closeModal()">إلغاء</button></div></div>`,()=>{
  $('#mOk').onclick=()=>{const t=$('#mT').value.trim();if(!t)return;const mm=+$('#mM').value;const m={id:'c'+Date.now(),cat:$('#mC').value,t,m:mm,e:mm>40?'h':'m',xp:Math.max(10,Math.round(mm/2)+10)};if(!$('#mKeep').checked)m.once=true;S.custom.push(m);day().missions.push(m.id);save();closeModal();renderMissions();toast('✅ اتضافت')}})}
-function lootBox(){const prizes=[['+50 XP',()=>addXP(50,'self')],['+100 XP',()=>addXP(100,'self')],['🧊 يوم سماح',()=>{S.freezes=Math.min(5,S.freezes+1);save();renderTop()}],['+75 XP',()=>addXP(75,'self')],['🪙 200 عملة',()=>{S.spent-=200;save();renderTop()}]];
+function lootBox(){const rr=pick(REWARDS_POOL.filter(x=>x.cost<=300));const prizes=[[rr.e+' '+rr.n+' — ببلاش!',()=>{S.redeemed.unshift({e:rr.e,n:rr.n,cost:0,d:Date.now(),free:true});save()}],[rr.e+' '+rr.n+' — ببلاش!',()=>{S.redeemed.unshift({e:rr.e,n:rr.n,cost:0,d:Date.now(),free:true});save()}],['+50 XP',()=>addXP(50,'self')],['+100 XP',()=>addXP(100,'self')],['🧊 يوم سماح',()=>{S.freezes=Math.min(5,S.freezes+1);save();renderTop()}],['+75 XP',()=>addXP(75,'self')],['🪙 200 عملة',()=>{S.spent-=200;save();renderTop()}]];
   const p=pick(prizes);modal(`<div style="text-align:center"><div style="font-size:70px">🎁</div><h3 style="justify-content:center">خلّصت كل مهام النهارده!</h3><p class="muted">صندوق المفاجآت بتاعك فيه…</p><div style="font-size:30px;font-weight:800;margin:14px 0;color:var(--p)">${p[0]}</div><button class="btn big" onclick="closeModal()">الله! 🎉</button></div>`);p[1]();confetti(300);sfx('levelup')}
 
 /* prayers */
@@ -1402,7 +1619,7 @@ const PN={h:'عاجل',m:'مهم',l:'لما أفضى'};
 function taskXP(t){return t.prio==='h'?25:t.prio==='m'?15:10}
 function toggleTask(id){const t=S.tasks.find(x=>x.id===id);if(!t)return;
   if(t.status==='done'){t.status='todo';t.doneAt=null;S.stats.tasks--;subXP(taskXP(t),t.cat)}
-  else{t.status='done';t.doneAt=Date.now();S.stats.tasks++;sfx('done');addXP(taskXP(t),t.cat,pick(['✅ خلصت!','💪 واحدة كمان','🔥 ماشي صح']));
+  else{t.status='done';t.doneAt=Date.now();S.stats.tasks++;sfx('done');addXP(taskXP(t),t.cat,pick(['✅ خلصت!','💪 واحدة كمان','🔥 ماشي صح']));maybeSurprise(t.prio==='h'?.1:.05,t.prio==='h'?300:150);
     if(t.repeat&&t.repeat!=='none'){const base=t.due||today();const nd=t.repeat==='daily'?addDays(base,1):t.repeat==='weekly'?addDays(base,7):t.repeat==='weekdays'?(()=>{let k=addDays(base,1);while([0,6].includes(new Date(k+'T12:00').getDay()))k=addDays(k,1);return k})():(()=>{const d=new Date(base+'T12:00');d.setMonth(d.getMonth()+1);return dkey(d)})();
       S.tasks.push({...t,id:uid('t'),status:'todo',doneAt:null,due:nd,sub:(t.sub||[]).map(s=>({...s,d:false})),created:Date.now()});toast('🔁 المهمة الجاية اتعملت لـ '+fmtDay(nd))}}
   save();if(curView==='tasks')R.tasks();if(curView==='today')renderTop3()}
@@ -1873,7 +2090,7 @@ function startFocus(mins){if(mins&&!fRun){fMin=mins;fLen=fLeft=mins*60;if(curVie
 function pauseFocus(){clearInterval(fRun);fRun=null;if($('#fGo')){$('#fGo').textContent='▶ كمّل';$('#fState').textContent='واقف'}}
 function resetFocus(){clearInterval(fRun);fRun=null;fLeft=fLen;document.title=baseTitle;if($('#fGo')){$('#fGo').textContent='▶ ابدأ';$('#fState').textContent='جاهز؟'}drawF()}
 function finishFocus(){clearInterval(fRun);fRun=null;document.title=baseTitle;const d=day();const task=$('#fTask')?$('#fTask').value:'';
-  if(fMin>5){d.focus=(d.focus||0)+1;d.fmins=(d.fmins||0)+fMin;S.stats.focus++;addXP(Math.round(fMin*.8),'work','🎯 جلسة تركيز خلصت!');confetti(150);
+  if(fMin>5){d.focus=(d.focus||0)+1;d.fmins=(d.fmins||0)+fMin;S.stats.focus++;addXP(Math.round(fMin*.8),'work','🎯 جلسة تركيز خلصت!');confetti(150);maybeSurprise(.12,200);
     raiseAlarm({t:'🎯 الجلسة خلصت — عاش!',sub:`${fMin} دقيقة تركيز${task?' على: '+task:''}`,body:'قوم اتحرك واشرب مية 5 دقايق.',icon:'🏆',sound:'chime',snooze:false,loud:false,
       onOk:()=>{if(fLinked){const t=S.tasks.find(x=>x.id===fLinked);if(t&&t.status!=='done')modal(`<h3>خلّصت «${esc(t.t)}»؟</h3><div class="row"><button class="btn" id="fdY">أيوه ✓</button><button class="btn ghost" id="fdN">لسه — هكمّل بعدين</button></div>`,()=>{$('#fdY').onclick=()=>{closeModal();toggleTask(t.id);fLinked=null};$('#fdN').onclick=()=>closeModal()})}}})}
   else raiseAlarm({t:'🌿 البريك خلص — يلا نكمل',icon:'🌿',sound:'gentle',snooze:false,loud:false});
@@ -1882,14 +2099,34 @@ function toggleNoise(){const a=ac();if(!a)return;if(noise){noise.stop();noise=nu
   const src=a.createBufferSource();src.buffer=buf;src.loop=true;const g=a.createGain();g.gain.value=.35*S.settings.vol;src.connect(g);g.connect(a.destination);src.start();noise=src}if(curView==='focus')R.focus()}
 
 /* ================== REWARDS ================== */
-R.rewards=()=>{const c=coins();
-  $('#v-rewards').innerHTML=`<div class="featured"><div class="bigb" style="background:linear-gradient(135deg,var(--sun),var(--coral))">🪙</div><div class="f1"><div class="muted small" style="font-weight:700">رصيدك</div><h2 style="font-size:34px">${c} عملة</h2><p class="muted" style="line-height:1.8">كل XP بتكسبه = عملة. اصرفها على مكافآت إنت اخترتها — من غير ذنب، لأنك كسبتها.</p></div></div>
-   <div class="row" style="margin-bottom:12px"><h3 class="f1">🛍️ متجر المكافآت</h3><button class="btn sm" id="rwAdd">＋ مكافأة</button></div>
-   <div class="shop">${S.rewards.map(r=>`<div class="it"><span>${r.e}</span><h4 style="margin:8px 0">${esc(r.n)}</h4><div class="xpb" style="display:inline-block">🪙 ${r.cost}</div><div class="row" style="justify-content:center;margin-top:10px"><button class="btn sm ${c<r.cost?'ghost':''}" data-rw="${r.id}" ${c<r.cost?'disabled':''}>${c<r.cost?`باقي ${r.cost-c}`:'اشتري 🎉'}</button><button class="x" data-rx="${r.id}">✕</button></div></div>`).join('')}</div>
-   <div class="card" style="margin-top:16px"><h3>🧾 المكافآت اللي أخدتها</h3>${S.redeemed.slice(0,20).map(x=>`<div class="sec"><span class="em">${x.e}</span><div>${esc(x.n)} <span class="muted small">· ${fmtWhen(x.d)} · 🪙${x.cost}</span></div></div>`).join('')||'<div class="muted small">لسه — اشتغل واكسب 😉</div>'}</div>`;
-  $$('[data-rw]').forEach(b=>b.onclick=()=>{const r=S.rewards.find(x=>x.id===b.dataset.rw);confirmBox(`تصرف ${r.cost} عملة على «${esc(r.n)}»؟`,()=>{S.spent+=r.cost;S.redeemed.unshift({e:r.e,n:r.n,cost:r.cost,d:Date.now()});save();confetti(200);sfx('levelup');toast('🎉 استمتع — إنت تستاهل!');R.rewards();renderTop()})});
-  $$('[data-rx]').forEach(b=>b.onclick=()=>{S.rewards=S.rewards.filter(x=>x.id!==b.dataset.rx);save();R.rewards()});
-  $('#rwAdd').onclick=()=>modal(`<h3>＋ مكافأة</h3><div class="formg"><div class="row"><input type="text" id="rwE" value="🎁" style="width:60px;text-align:center"><input type="text" id="rwN" placeholder="مثال: عشا برا"></div><label>السعر (عملة)</label><input type="number" id="rwC" value="300"><button class="btn" id="rwOk">إضافة</button></div>`,()=>{$('#rwOk').onclick=()=>{const n=$('#rwN').value.trim();if(!n)return;S.rewards.push({id:uid('r'),e:$('#rwE').value||'🎁',n,cost:Math.max(10,+$('#rwC').value||300)});save();closeModal();R.rewards()}})};
+let rwCat='all',rwQ='';
+function buyReward(r){const c=coins();if(c<r.cost){toast(`محتاج ${r.cost-c} عملة كمان 💪`);return}
+  confirmBox(`تصرف ${r.cost} عملة على «${esc(r.n)}»؟`,()=>{S.spent+=r.cost;S.redeemed.unshift({e:r.e,n:r.n,cost:r.cost,d:Date.now()});save();confetti(220);sfx('levelup');toast('🎉 استمتع — إنت تستاهل!');R.rewards();renderTop()})}
+function rwCard(r){const c=coins(),t=RW_TIER(r.cost),fav=(S.rwFav||[]).includes(r.id);const pct=Math.min(100,Math.round(c/r.cost*100));
+  return`<div class="it"><div class="row" style="justify-content:space-between"><span class="chip" style="background:var(--bg);color:${t[1]}">${t[0]}</span><button class="ib" data-fv="${r.id}" title="عايزها">${fav?'❤️':'🤍'}</button></div><span>${r.e}</span><h4 style="margin:8px 0;min-height:44px;line-height:1.5">${esc(r.n)}</h4><div class="xpb" style="display:inline-block">🪙 ${r.cost}</div>
+   ${c<r.cost?`<div class="bar" style="margin-top:10px"><i style="width:${pct}%"></i></div><div class="muted small" style="margin-top:4px">باقي ${r.cost-c}</div>`:`<div style="margin-top:10px"><button class="btn sm" data-rb="${r.id}">اشتري 🎉</button></div>`}</div>`}
+R.rewards=()=>{const c=coins(),all=REWARDS_POOL.concat(S.rewards.map(r=>({...r,cat:'mine'})));const deals=dailyDeals();const favs=all.filter(r=>(S.rwFav||[]).includes(r.id));
+  const next=REWARDS_POOL.filter(r=>r.cost>c).sort((a,b)=>a.cost-b.cost)[0];
+  let L=rwCat==='all'?REWARDS_POOL:rwCat==='mine'?all.filter(r=>r.cat==='mine'):REWARDS_POOL.filter(r=>r.cat===rwCat);if(rwQ)L=L.filter(r=>r.n.includes(rwQ));L=L.slice().sort((a,b)=>a.cost-b.cost);
+  $('#v-rewards').innerHTML=`<div class="featured"><div class="bigb" style="background:linear-gradient(135deg,var(--sun),var(--coral))">🪙</div><div class="f1"><div class="muted small" style="font-weight:700">رصيدك</div><h2 style="font-size:34px">${c} عملة</h2>
+    <p class="muted" style="line-height:1.8">كل XP = عملة. فيه ${REWARDS_POOL.length} جايزة حقيقية، وكل يوم بيطلعلك عروض جديدة. وساعات السكرتير يفاجئك بجايزة ببلاش لما تنجز 🎁</p>
+    ${next?`<div class="small" style="margin-top:6px">🎯 أقرب جايزة: ${next.e} <b>${esc(next.n)}</b> — باقي ${next.cost-c} عملة</div>`:''}</div>
+    <div class="col"><button class="btn big coral" id="rwSpin">🎲 اختارلي جايزة</button><button class="btn ghost sm" id="rwAdd">＋ جايزة من عندي</button></div></div>
+   <div class="row" style="margin-bottom:10px"><h3 class="f1">🔥 عروض النهارده <span class="muted small" style="font-weight:500">بتتغير كل يوم</span></h3></div>
+   <div class="shop" style="margin-bottom:18px">${deals.map(rwCard).join('')}</div>
+   ${favs.length?`<h3 style="margin-bottom:10px">❤️ عايزها</h3><div class="shop" style="margin-bottom:18px">${favs.map(rwCard).join('')}</div>`:''}
+   <div class="row wrap" style="margin-bottom:10px"><div class="tabs" style="margin:0"><button class="tab ${rwCat==='all'?'on':''}" data-rc="all">الكل (${REWARDS_POOL.length})</button>${Object.entries(RW_CATS).map(([k,v])=>`<button class="tab ${rwCat===k?'on':''}" data-rc="${k}">${v[0]} ${v[1]}</button>`).join('')}<button class="tab ${rwCat==='mine'?'on':''}" data-rc="mine">⭐ بتوعي (${S.rewards.length})</button></div><div class="f1"></div><input type="search" id="rwQ" placeholder="🔍 دوّر" style="width:180px" value="${esc(rwQ)}"></div>
+   <div class="shop">${L.map(r=>rwCard(r)+(r.cat==='mine'?'':'')).join('')||'<div class="muted">مفيش</div>'}</div>
+   <div class="card" style="margin-top:16px"><h3>🧾 الجوايز اللي أخدتها <span class="r">${S.redeemed.length}</span></h3>${S.redeemed.slice(0,25).map(x=>`<div class="sec"><span class="em">${x.e}</span><div>${esc(x.n)} <span class="muted small">· ${fmtWhen(x.d)} · ${x.free?'🎁 مفاجأة ببلاش':'🪙'+x.cost}</span></div></div>`).join('')||'<div class="muted small">لسه — اشتغل واكسب 😉</div>'}</div>`;
+  $$('[data-rb]').forEach(b=>b.onclick=()=>buyReward(all.find(r=>r.id===b.dataset.rb)));
+  $$('[data-fv]').forEach(b=>b.onclick=()=>{S.rwFav=S.rwFav||[];const id=b.dataset.fv;S.rwFav=S.rwFav.includes(id)?S.rwFav.filter(x=>x!==id):[...S.rwFav,id];save();R.rewards()});
+  $$('[data-rc]').forEach(b=>b.onclick=()=>{rwCat=b.dataset.rc;R.rewards()});
+  $('#rwQ').oninput=e=>{rwQ=e.target.value;const p=e.target.selectionStart;R.rewards();const i=$('#rwQ');i.focus();i.setSelectionRange(p,p)};
+  $('#rwSpin').onclick=()=>{const aff=REWARDS_POOL.filter(r=>r.cost<=Math.max(c,150));const r=pick(aff);
+    modal(`<div style="text-align:center"><div style="font-size:60px">🎲</div><p class="muted">النهارده تستاهل…</p><div style="font-size:44px;margin:8px 0">${r.e}</div><h2>${esc(r.n)}</h2><div class="xpb" style="display:inline-block;margin:10px 0">🪙 ${r.cost}</div>
+     <div class="row" style="justify-content:center;margin-top:8px">${c>=r.cost?`<button class="btn" id="spB">اشتريها 🎉</button>`:`<span class="muted small">باقي ${r.cost-c} عملة</span>`}<button class="btn ghost" id="spA">غيرها</button><button class="btn ghost" id="spF">❤️ عايزها</button></div></div>`,()=>{
+     const b=$('#spB');if(b)b.onclick=()=>{closeModal();buyReward(r)};$('#spA').onclick=()=>$('#rwSpin').click();$('#spF').onclick=()=>{S.rwFav=[...new Set([...(S.rwFav||[]),r.id])];save();closeModal();R.rewards();toast('❤️ اتضافت لـ «عايزها»')}});sfx('tick')};
+  $('#rwAdd').onclick=()=>modal(`<h3>＋ جايزة من عندي</h3><div class="formg"><div class="row"><input type="text" id="rwE" value="🎁" style="width:60px;text-align:center"><input type="text" id="rwN" placeholder="مثال: عشا برا"></div><label>السعر (عملة)</label><input type="number" id="rwC" value="300"><button class="btn" id="rwOk">إضافة</button></div>`,()=>{$('#rwOk').onclick=()=>{const n=$('#rwN').value.trim();if(!n)return;S.rewards.push({id:uid('r'),e:$('#rwE').value||'🎁',n,cost:Math.max(10,+$('#rwC').value||300)});save();closeModal();rwCat='mine';R.rewards()}})};
 
 /* ================== SETTINGS ================== */
 const THEMES={mint:['🌿 نعناعي','#2BA89A'],sky:['🌤️ سماوي','#3D8BD9'],peach:['🍑 خوخي','#F07A4F'],lavender:['💜 لافندر','#7E6BC4'],sand:['🏜️ رملي','#C4892B'],forest:['🌲 غابة','#3E9B5B']};
