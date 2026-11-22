@@ -850,10 +850,16 @@ function renderTop(){
   const up=S.reminders.filter(r=>!r.done&&r.at>Date.now()&&r.at-Date.now()<864e5).length;$('#bellN').textContent=up||'';
 }
 function renderDate(){const g=new Date().toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long',year:'numeric'});$('#dateLine').textContent=g+(PT&&PT.hijri?' · '+PT.hijri:'')+(WX?` · ${WX.icon} ${WX.t}°`:'')}
-function renderBanner(){const b=$('#banner');const need=('Notification'in window)&&Notification.permission!=='granted';
-  b.classList.toggle('hide',!need&&audioOk);
-  b.innerHTML=`<span style="font-size:22px">🔔</span><div class="f1 small" style="line-height:1.7"><b>فعّل التنبيهات والصوت</b> عشان السكرتير يقدر يفكرك ويرن بصوت عالي. سيب الموقع مفتوح في تاب (حتى لو في الخلفية).</div><button class="btn sm" id="bnOk">فعّل دلوقتي</button>`;
-  $('#bnOk').onclick=async()=>{audioOk=true;playSound('chime',.5);if('Notification'in window&&Notification.permission!=='granted')await askNotify();b.classList.add('hide')}}
+function renderBanner(){const b=$('#banner');if(!b)return;
+  const sup='Notification'in window,perm=sup?Notification.permission:'na';
+  const dismissed=localStorage.getItem('hayati_nb')===perm;
+  if(!sup||perm==='granted'||dismissed){b.classList.add('hide');return}
+  b.classList.remove('hide');
+  b.innerHTML=perm==='denied'
+   ?`<span style="font-size:22px">🔕</span><div class="f1 small" style="line-height:1.7"><b>الإشعارات مقفولة من المتصفح.</b> عشان تفعّلها: دوس على 🔒 جنب الرابط فوق ← Notifications ← Allow، وبعدين Refresh.</div><button class="x" id="bnX" title="متظهرش تاني">✕</button>`
+   :`<span style="font-size:22px">🔔</span><div class="f1 small" style="line-height:1.7"><b>فعّل الإشعارات</b> عشان السكرتير يقدر يفكرك وإنت في أي برنامج تاني.</div><button class="btn sm" id="bnOk">فعّل</button><button class="x" id="bnX" title="متظهرش تاني">✕</button>`;
+  const ok=$('#bnOk');if(ok)ok.onclick=async()=>{audioOk=true;playSound('chime',.5);await askNotify()};
+  $('#bnX').onclick=()=>{localStorage.setItem('hayati_nb',perm);b.classList.add('hide')}}
 let audioOk=false;
 
 /* ================== PRAYER & WEATHER ================== */
